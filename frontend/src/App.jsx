@@ -1,0 +1,43 @@
+import { useState } from "react";
+import "./App.css";
+
+function App() {
+  const [task, setTask] = useState("");
+  const [tasks, setTasks] = useState([]);
+  function addTask() {
+    if (task.trim() === "") return;
+    setTasks([...tasks, task]);
+    setTask("");
+  }
+  function deleteTask(indexToDelete) {
+    const updated = tasks.filter((t, index) => index !== indexToDelete);
+    setTasks(updated);
+  }
+
+  return (
+    <div className="container">
+      <h1>Task Manager</h1>
+
+      <div className="input-section">
+        <input
+          type="text"
+          value={task}
+          placeholder="Enter Task"
+          onChange={(e) => setTask(e.target.value)}
+        />
+
+        <button onClick={addTask}>Add</button>
+      </div>
+
+      {tasks.map((t, index) => (
+        <div className="task" key={index}>
+          <span>{t}</span>
+
+          <button onClick={() => deleteTask(index)}>Delete</button>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+export default App;
