@@ -4,13 +4,39 @@ import "./App.css";
 function App() {
   const [task, setTask] = useState("");
   const [tasks, setTasks] = useState([]);
+
   function addTask() {
     if (task.trim() === "") return;
-    setTasks([...tasks, task]);
+
+    setTasks([
+      ...tasks,
+      {
+        task: task,
+        completed: false,
+      },
+    ]);
+
     setTask("");
   }
+
+  function toggleTask(indexToToggle) {
+    const updated = tasks.map((t, index) => {
+      if (index === indexToToggle) {
+        return {
+          ...t,
+          completed: !t.completed,
+        };
+      }
+
+      return t;
+    });
+
+    setTasks(updated);
+  }
+
   function deleteTask(indexToDelete) {
-    const updated = tasks.filter((t, index) => index !== indexToDelete);
+    const updated = tasks.filter((_, index) => index !== indexToDelete);
+
     setTasks(updated);
   }
 
@@ -31,7 +57,22 @@ function App() {
 
       {tasks.map((t, index) => (
         <div className="task" key={index}>
-          <span>{t}</span>
+          <div>
+            <input
+              type="checkbox"
+              checked={t.completed}
+              onChange={() => toggleTask(index)}
+            />
+
+            <span
+              style={{
+                textDecoration: t.completed ? "line-through" : "none",
+                marginLeft: "10px",
+              }}
+            >
+              {t.task}
+            </span>
+          </div>
 
           <button onClick={() => deleteTask(index)}>Delete</button>
         </div>
