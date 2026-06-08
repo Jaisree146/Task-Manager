@@ -3,6 +3,7 @@ import "./App.css";
 
 function App() {
   const [task, setTask] = useState("");
+  const [description, setDescription] = useState("");
   const [tasks, setTasks] = useState([]);
 
   function addTask() {
@@ -13,10 +14,12 @@ function App() {
       {
         task: task,
         completed: false,
+        description: description,
       },
     ]);
 
     setTask("");
+    setDescription("");
   }
 
   function toggleTask(indexToToggle) {
@@ -52,6 +55,13 @@ function App() {
           onChange={(e) => setTask(e.target.value)}
         />
 
+        <input
+          type="text"
+          value={description}
+          placeholder="Enter Description"
+          onChange={(e) => setDescription(e.target.value)}
+        />
+
         <button onClick={addTask}>Add</button>
       </div>
 
@@ -72,6 +82,8 @@ function App() {
             >
               {t.task}
             </span>
+            <h3>{t.task}</h3>
+            <p>{t.description}</p>
           </div>
 
           <button onClick={() => deleteTask(index)}>Delete</button>
