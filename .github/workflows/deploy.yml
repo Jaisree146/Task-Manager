@@ -1,24 +1,22 @@
-name: React CI
+name: Deploy React App
 
 on:
   push:
     branches:
       - main
-      - feature/**
 
-  pull_request:
-    branches:
-      - main
+permissions:
+  contents: write
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Code
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -27,6 +25,12 @@ jobs:
         working-directory: frontend
         run: npm install
 
-      - name: Build Application
+      - name: Build App
         working-directory: frontend
         run: npm run build
+
+      - name: Deploy
+        working-directory: frontend
+        run: npm run deploy
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
