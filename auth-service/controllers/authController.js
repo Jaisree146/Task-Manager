@@ -45,9 +45,10 @@ async function getUserByEmail(req, res) {
 async function login(req, res) {
   try {
     const { email } = req.body;
-    const token = await authService.login(email);
+    const tokens = await authService.login(email);
     res.json({
-      token,
+      accessToken: tokens.accessToken,
+      refreshToken: tokens.refreshToken,
     });
   } catch (err) {
     res.status(400).json({
@@ -55,6 +56,49 @@ async function login(req, res) {
     });
   }
 }
+
+async function refreshToken(req, res) {
+  try {
+    const { refreshToken } = req.body;
+
+    if (!refreshToken) {
+      return res.status(401).json({
+        message: "Refresh Token Missing",
+      });
+    }
+
+    const accessToken = await authService.refreshAccessToken(refreshToken);
+    res.json({
+      accessToken,
+    });
+  } catch (err) {
+    res.status(403).json({
+      message: "Invalid Refresh Token",
+    });
+  }
+}
+
+async function logout(req, res) {
+  try {
+    const { refreshToken } = req.body;
+
+    if (!refreshToken) {
+      return res.status(401).json({
+        message: "Refresh Token Missing",
+      });
+    }
+
+    await authService.logout(refreshToken);
+    res.json({
+      message: "Logged out successfully",
+    });
+  } catch (err) {
+    res.status(500).json({
+      error: err.message,
+    });
+  }
+}
+
 async function getProfile(req, res) {
   try {
     const user = req.user;
@@ -72,5 +116,7 @@ module.exports = {
   register,
   getUserByEmail,
   login,
+  refreshToken,
+  logout,
   getProfile,
 };

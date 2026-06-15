@@ -5,6 +5,8 @@ const {
   register,
   getUserByEmail,
   login,
+  refreshToken,
+  logout,
   getProfile,
 } = require("../controllers/authController");
 const authenticateToken = require("../middleware/authMiddleware");
@@ -14,6 +16,8 @@ router.get("/users", authenticateToken, roleMiddleware(1), getUsers);
 router.post("/register", register);
 router.get("/users/:email", getUserByEmail);
 router.post("/login", login);
+router.post("/refresh", refreshToken);
+router.post("/logout", logout);
 router.get("/profile", authenticateToken, getProfile);
 router.get(
   "/google",
