@@ -32,17 +32,36 @@ passport.use(
 
         console.log("User found");
 
-        const token = jwt.sign(
+        const accessToken = jwt.sign(
           {
             userId: user.id,
             email: user.email,
             roleId: user.role_id,
           },
           process.env.JWT_SECRET,
+          {
+            expiresIn: "15m",
+          },
         );
-        console.log("JWT created");
 
-        return done(null, { user, token });
+        const refreshToken = jwt.sign(
+          {
+            userId: user.id,
+          },
+          process.env.REFRESH_SECRET,
+          {
+            expiresIn: "7d",
+          },
+        );
+
+        await authModel.storeRefreshToken(user.id, refreshToken);
+
+        return done(null, {
+          user,
+          accessToken,
+          refreshToken,
+        });
+        console.log("JWT created");
       } catch (err) {
         console.log("ERROR:", err);
         return done(err, null);

@@ -9,7 +9,6 @@ app.use(passport.initialize());
 const logger = require("./middleware/logger");
 app.use(logger);
 app.use("/auth", authRoutes);
-
 app.listen(5000, () => {
   console.log("Auth Service Running");
 });

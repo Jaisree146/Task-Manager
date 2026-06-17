@@ -12,13 +12,13 @@ const {
 const authenticateToken = require("../middleware/authMiddleware");
 const roleMiddleware = require("../middleware/roleMiddleware");
 const passport = require("passport");
-router.get("/users", authenticateToken, roleMiddleware(1), getUsers);
+
 router.post("/register", register);
-router.get("/users/:email", getUserByEmail);
 router.post("/login", login);
-router.post("/refresh", refreshToken);
-router.post("/logout", logout);
+router.get("/users", authenticateToken, roleMiddleware(1), getUsers);
+router.get("/users/:email", getUserByEmail);
 router.get("/profile", authenticateToken, getProfile);
+
 router.get(
   "/google",
   passport.authenticate("google", {
@@ -41,8 +41,12 @@ router.get(
     }
 
     res.json({
-      token: req.user.token,
+      accessToken: req.user.accessToken,
+      refreshToken: req.user.refreshToken,
     });
   },
 );
+router.post("/refresh", refreshToken);
+router.post("/logout", logout);
+
 module.exports = router;

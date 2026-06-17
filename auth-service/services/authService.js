@@ -11,12 +11,9 @@ async function getUserByEmail(email) {
 }
 async function login(email) {
   const user = await authModel.getUserByEmail(email);
-
   if (!user) {
     throw new Error("User Not Found");
   }
-
-  // Generate access token (short-lived: 15 minutes)
   const accessToken = jwt.sign(
     {
       userId: user.id,
@@ -28,8 +25,6 @@ async function login(email) {
       expiresIn: "15m",
     },
   );
-
-  // Generate refresh token (long-lived: 7 days)
   const refreshToken = jwt.sign(
     {
       userId: user.id,
@@ -40,9 +35,7 @@ async function login(email) {
     },
   );
 
-  // Store refresh token in database
   await authModel.storeRefreshToken(user.id, refreshToken);
-
   return {
     accessToken,
     refreshToken,
@@ -55,22 +48,17 @@ async function refreshAccessToken(refreshToken) {
   }
 
   try {
-    // Verify refresh token signature
     const payload = jwt.verify(refreshToken, process.env.REFRESH_SECRET);
-
-    // Check if token exists in database
     const storedToken = await authModel.getRefreshToken(refreshToken);
     if (!storedToken) {
       throw new Error("Refresh token not found or revoked");
     }
 
-    // Get user details by ID
     const user = await authModel.getUserById(payload.userId);
     if (!user) {
       throw new Error("User not found");
     }
 
-    // Generate new access token
     const accessToken = jwt.sign(
       {
         userId: user.id,
