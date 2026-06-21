@@ -2,9 +2,11 @@ from flask import Flask
 from config import mysql
 from routes.task_routes import task_bp
 from dotenv import load_dotenv
+from flask_cors import CORS
 import os
 load_dotenv()
 app = Flask(__name__)
+CORS(app)
 app.config["MYSQL_HOST"] = os.getenv("DB_HOST")
 app.config["MYSQL_USER"] = os.getenv("DB_USER")
 app.config["MYSQL_PASSWORD"] = os.getenv("DB_PASSWORD")
