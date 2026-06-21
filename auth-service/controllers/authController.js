@@ -11,8 +11,15 @@ async function getUsers(req, res) {
 }
 async function register(req, res) {
   try {
-    const { googleId, name, email, roleId } = req.body;
-    const result = await authService.register(googleId, name, email, roleId);
+    const { googleId, name, email, password } = req.body;
+
+    const result = await authService.register(
+      googleId,
+      name,
+      email,
+      password
+    );
+
     res.status(201).json({
       message: "User Created",
       id: result.insertId,
@@ -44,8 +51,8 @@ async function getUserByEmail(req, res) {
 }
 async function login(req, res) {
   try {
-    const { email } = req.body;
-    const tokens = await authService.login(email);
+    const { email, password } = req.body;
+    const tokens = await authService.login(email, password);
     res.json({
       accessToken: tokens.accessToken,
       refreshToken: tokens.refreshToken,

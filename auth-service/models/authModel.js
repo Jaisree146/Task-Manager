@@ -5,24 +5,33 @@ async function getAllUsers() {
   return rows;
 }
 
-async function register(googleId, name, email, roleId) {
+async function register(googleId, name, email, password) {
+  const DEFAULT_ROLE = 2;
   const [result] = await db.query(
     `
-            INSERT INTO users
-            (
-                google_id,
-                name,
-                email,
-                role_id
-            )
-            VALUES
-            (?, ?, ?, ?)
-            `,
-    [googleId, name, email, roleId],
+    INSERT INTO users
+    (
+      google_id,
+      name,
+      email,
+      password,
+      role_id
+    )
+    VALUES
+    (?, ?, ?, ?, ?)
+    `,
+    [
+      googleId,
+      name,
+      email,
+      password,
+      DEFAULT_ROLE,
+    ]
   );
 
   return result;
 }
+
 async function getUserByEmail(email) {
   const [rows] = await db.query("SELECT * FROM users WHERE email = ?", [email]);
   return rows[0];
