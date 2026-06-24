@@ -1,36 +1,33 @@
-import { useEffect, useState } from "react";
-import Navbar from "../components/Navbar";
+import { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import taskApi from "../services/taskapi";
+import { fetchTasks } from "../services/taskService";
 import { type Task } from "../types/task";
 import { useAuth } from "../contexts/authContext";
+
 function Tasks() {
   const { token } = useAuth();
-  const [tasks, setTasks] = useState<Task[]>([]);
+
   const [task, setTask] = useState("");
   const [description, setDescription] = useState("");
+  const [completed, setCompleted] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
-  useEffect(() => {
-    fetchTasks();
-  }, []);
-  async function fetchTasks() {
-    try {
-      const response = await taskApi.get("/tasks", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      setTasks(response.data);
-    } catch (err) {
-      console.log(err);
-    }
-  }
-  async function addTask() {
-    if (!task) {
-      alert("Enter Task");
-      return;
-    }
-    try {
-      await taskApi.post(
+
+  const queryClient = useQueryClient();
+
+  const {
+    data: tasks = [],
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["tasks", token],
+    queryFn: () => fetchTasks(token!),
+    enabled: !!token,
+  });
+
+  const addTaskMutation = useMutation({
+    mutationFn: async () => {
+      return taskApi.post(
         "/tasks",
         {
           task,
@@ -40,146 +37,244 @@ function Tasks() {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        },
+        }
       );
+    },
+
+    onSuccess: () => {
       setTask("");
       setDescription("");
-      fetchTasks();
-    } catch (err) {
-      console.log(err);
-    }
-  }
-  async function deleteTask(id: number) {
-    try {
-      await taskApi.delete(`/tasks/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+
+      queryClient.invalidateQueries({
+        queryKey: ["tasks", token],
       });
+    },
+  });
 
-      alert("Task Deleted Successfully");
-
-      fetchTasks();
-    } catch (err) {
-      console.log(err);
-      alert("Failed to delete task");
-    }
-  }
-  async function updateTask() {
-    try {
-      await taskApi.put(
+  const updateTaskMutation = useMutation({
+    mutationFn: async () => {
+      return taskApi.put(
         `/tasks/${editingId}`,
         {
           task,
           description,
-          completed: false,
+          completed,
         },
         {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        },
+        }
       );
+    },
 
-      alert("Task Updated Successfully");
-
+    onSuccess: () => {
       setEditingId(null);
       setTask("");
       setDescription("");
+      setCompleted(false);
 
-      fetchTasks();
-    } catch (err) {
-      console.log(err);
-      alert("Failed to update task");
+      queryClient.invalidateQueries({
+        queryKey: ["tasks", token],
+      });
+    },
+  });
+
+  const deleteTaskMutation = useMutation({
+    mutationFn: async (id: number) => {
+      return taskApi.delete(`/tasks/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+    },
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["tasks", token],
+      });
+    },
+  });
+
+  function addTask() {
+    if (!task.trim()) {
+      alert("Please enter a task");
+      return;
     }
+
+    addTaskMutation.mutate();
+  }
+
+  function updateTask() {
+    if (editingId === null) return;
+
+    if (!task.trim()) {
+      alert("Please enter a task");
+      return;
+    }
+
+    updateTaskMutation.mutate();
+  }
+
+  function deleteTask(id: number) {
+    deleteTaskMutation.mutate(id);
+  }
+
+  if (isLoading) {
+    return (
+      <div className="p-6">
+        <h2>Loading Tasks...</h2>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-6">
+        <h2>Failed to load tasks.</h2>
+      </div>
+    );
   }
 
   return (
-    <>
-      <div style={{ padding: "20px" }}>
-        <h1>Task Manager</h1>
+    <div className="min-h-screen bg-gray-50 p-6">
+      {/* Form Section */}
+      <div className="mb-8 rounded-xl bg-white p-6 shadow">
+        <h1 className="mb-6 text-3xl font-bold">
+          Task Manager
+        </h1>
 
-        <input
-          type="text"
-          placeholder="Task"
-          value={task}
-          onChange={(e) => setTask(e.target.value)}
-        />
+        <div className="space-y-4">
+          <input
+            type="text"
+            placeholder="Task Title"
+            value={task}
+            onChange={(e) => setTask(e.target.value)}
+            className="w-full rounded-lg border border-gray-300 p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
 
-        <br />
-        <br />
+          <textarea
+            placeholder="Task Description"
+            value={description}
+            onChange={(e) =>
+              setDescription(e.target.value)
+            }
+            rows={4}
+            className="w-full rounded-lg border border-gray-300 p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
 
-        <textarea
-          placeholder="Description"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-        />
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={completed}
+              onChange={(e) =>
+                setCompleted(e.target.checked)
+              }
+            />
+            Completed
+          </label>
 
-        <br />
-        <br />
-
-        <button onClick={editingId !== null ? updateTask : addTask}>
-          {editingId !== null ? "Update Task" : "Add Task"}
-        </button>
-
-        <hr />
-
-        {tasks.length === 0 ? (
-          <p>No Tasks Found</p>
-        ) : (
-          tasks.map((task) => (
-            <div
-              key={task.id}
-              style={{
-                border: "1px solid gray",
-                padding: "10px",
-                marginBottom: "10px",
-              }}
+          <div className="flex gap-3">
+            <button
+              disabled={
+                addTaskMutation.isPending ||
+                updateTaskMutation.isPending
+              }
+              onClick={
+                editingId !== null
+                  ? updateTask
+                  : addTask
+              }
+              className="rounded-lg bg-blue-600 px-5 py-2 text-white hover:bg-blue-700"
             >
-              <h3>{task.task}</h3>
+              {editingId !== null
+                ? "Update Task"
+                : "Add Task"}
+            </button>
 
-              <p>{task.description}</p>
-
-              <p>
-                Status:
-                {task.completed ? " Completed" : "Pending"}
-              </p>
+            {editingId !== null && (
               <button
                 onClick={() => {
-                  setEditingId(task.id);
-                  setTask(task.task);
-                  setDescription(task.description);
+                  setEditingId(null);
+                  setTask("");
+                  setDescription("");
+                  setCompleted(false);
                 }}
-                style={{
-                  marginTop: "10px",
-                  marginRight: "10px",
-                  backgroundColor: "blue",
-                  color: "white",
-                  border: "none",
-                  padding: "8px 12px",
-                  cursor: "pointer",
-                }}
+                className="rounded-lg bg-gray-500 px-5 py-2 text-white hover:bg-gray-600"
               >
-                Edit
+                Cancel
               </button>
-              <button
-                onClick={() => deleteTask(task.id)}
-                style={{
-                  marginTop: "10px",
-                  backgroundColor: "red",
-                  color: "white",
-                  border: "none",
-                  padding: "8px 12px",
-                  cursor: "pointer",
-                }}
-              >
-                Delete
-              </button>
-            </div>
-          ))
-        )}
+            )}
+          </div>
+        </div>
       </div>
-    </>
+
+      {/* Tasks List */}
+      {tasks.length === 0 ? (
+        <div className="rounded-xl bg-white p-6 shadow">
+          <p>No Tasks Found</p>
+        </div>
+      ) : (
+        <div className="grid gap-4">
+          {tasks.map((task: Task) => (
+            <div
+              key={task.id}
+              className="rounded-xl bg-white p-5 shadow"
+            >
+              <div className="flex items-start justify-between">
+                <div>
+                  <h3 className="text-xl font-semibold">
+                    {task.task}
+                  </h3>
+
+                  <p className="mt-2 text-gray-600">
+                    {task.description}
+                  </p>
+                </div>
+
+                <span
+                  className={`rounded-full px-3 py-1 text-sm font-medium ${
+                    task.completed
+                      ? "bg-green-100 text-green-700"
+                      : "bg-yellow-100 text-yellow-700"
+                  }`}
+                >
+                  {task.completed
+                    ? "Completed"
+                    : "Pending"}
+                </span>
+              </div>
+
+              <div className="mt-4 flex gap-3">
+                <button
+                  onClick={() => {
+                    setEditingId(task.id);
+                    setTask(task.task);
+                    setDescription(task.description);
+                    setCompleted(task.completed);
+                  }}
+                  className="rounded-lg bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
+                >
+                  Edit
+                </button>
+
+                <button
+                  disabled={
+                    deleteTaskMutation.isPending
+                  }
+                  onClick={() =>
+                    deleteTask(task.id)
+                  }
+                  className="rounded-lg bg-red-500 px-4 py-2 text-white hover:bg-red-600"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
 
