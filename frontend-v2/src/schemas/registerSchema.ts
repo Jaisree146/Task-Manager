@@ -3,7 +3,7 @@ import { z } from "zod";
 export const registerSchema = z.object({
   name: z
     .string()
-    .min(3, "Name must be at least 3 characters"),
+    .min(3,"Name must be at least 3 characters"),
 
   email: z
     .string()
@@ -11,7 +11,7 @@ export const registerSchema = z.object({
 
   password: z
     .string()
-    .min(6, "Password must be at least 6 characters"),
+    .min(6,"Password must be at least 6 characters"),
 });
 
 export type RegisterForm = z.infer<

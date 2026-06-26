@@ -83,8 +83,6 @@ const lineData = {
     <div className="min-h-screen bg-gray-50 p-6">
       {/* Heading */}
       <h1 className="mb-8 text-3xl font-bold text-black">Admin Dashboard</h1>
-
-      {/* TailGrids Style Stats Card */}
       <div className="mb-8">
         <div className="rounded-sm border border-stroke bg-white px-7 py-6 shadow">
           <div className="flex h-11 w-11 items-center justify-center rounded-full bg-blue-100">

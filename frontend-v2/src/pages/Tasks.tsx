@@ -4,17 +4,13 @@ import taskApi from "../services/taskapi";
 import { fetchTasks } from "../services/taskService";
 import { type Task } from "../types/task";
 import { useAuth } from "../contexts/authContext";
-
 function Tasks() {
   const { token } = useAuth();
-
   const [task, setTask] = useState("");
   const [description, setDescription] = useState("");
   const [completed, setCompleted] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
-
   const queryClient = useQueryClient();
-
   const {
     data: tasks = [],
     isLoading,
@@ -24,7 +20,6 @@ function Tasks() {
     queryFn: () => fetchTasks(token!),
     enabled: !!token,
   });
-
   const addTaskMutation = useMutation({
     mutationFn: async () => {
       return taskApi.post(

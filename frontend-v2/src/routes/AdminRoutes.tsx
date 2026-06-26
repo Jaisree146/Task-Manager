@@ -1,14 +1,11 @@
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../contexts/authContext";
 import type { ReactNode } from "react";
-
-type AdminRouteProps = {
+type AdminRouteProps={
   children: ReactNode;
 };
-
 function AdminRoute({ children }: AdminRouteProps) {
   const { token, roleId } = useAuth();
-
   if (!token) {
     return <Navigate to="/login" replace />;
   }

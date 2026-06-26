@@ -3,14 +3,13 @@ import { useAuth } from "../contexts/authContext";
 import authapi from "../services/authapi";
 import taskApi from "../services/taskapi";
 import { useNavigate } from "react-router-dom";
-
-type User = {
+type User={
   userId: number;
   email: string;
   roleId: number;
 };
 
-type Task = {
+type Task={
   id: number;
   task: string;
   description: string;
@@ -59,7 +58,6 @@ function Dashboard() {
   }
 
   const totalTasks = tasks.length;
-
   const completedTasks = tasks.filter(
     (task) => task.completed
   ).length;
@@ -125,7 +123,6 @@ function Dashboard() {
         </div>
       </div>
 
-      {/* User Info */}
       <div className="rounded-lg bg-white p-6 shadow">
         <h2 className="mb-4 text-xl font-semibold">
           User Profile

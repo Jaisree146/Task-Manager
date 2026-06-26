@@ -2,14 +2,13 @@ import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import authapi from "../services/authapi";
 import { zodResolver } from "@hookform/resolvers/zod";
-
 import { registerSchema, type RegisterForm } from "../schemas/registerSchema";
-function Register() {
-  const navigate = useNavigate();
-  const {
+function Register(){
+  const navigate=useNavigate();
+  const{
     register,
     handleSubmit,
-    formState: { errors },
+    formState:{errors},
   } = useForm<RegisterForm>({
     resolver: zodResolver(registerSchema),
   });
@@ -32,7 +31,6 @@ function Register() {
         <div className="rounded-xl bg-white p-8 shadow-lg">
           <div className="mb-8 text-center">
             <div className="mb-4 text-5xl">📝</div>
-
             <h1 className="text-3xl font-bold text-gray-900">Create Account</h1>
 
             <p className="mt-2 text-gray-500">
@@ -119,5 +117,4 @@ function Register() {
     </section>
   );
 }
-
 export default Register;
