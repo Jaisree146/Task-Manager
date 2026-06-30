@@ -1,5 +1,6 @@
 from config import mysql
 
+
 def create_task(user_id, task, description):
     cur = mysql.connection.cursor()
     cur.execute(
@@ -101,4 +102,3 @@ def delete_task(task_id, user_id):
 
     mysql.connection.commit()
     cur.close()
-    

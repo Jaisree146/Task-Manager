@@ -33,4 +33,3 @@ def update_existing_task(task_id, user_id, task, description, completed):
 
 def delete_existing_task(task_id, user_id):
     delete_task(task_id, user_id)
-
