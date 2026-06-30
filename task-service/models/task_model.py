@@ -101,3 +101,4 @@ def delete_task(task_id, user_id):
 
     mysql.connection.commit()
     cur.close()
+    
