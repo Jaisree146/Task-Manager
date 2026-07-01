@@ -1,6 +1,6 @@
-# Terraform Infrastructure for Task Service Deployment
+Terraform Infrastructure for Task Service Deployment
 
-## Overview
+Overview
 
 This Terraform configuration provisions the AWS infrastructure required to deploy the Flask-based Task Service using Amazon ECS Fargate.
 
@@ -16,7 +16,7 @@ The infrastructure includes:
 
 ---
 
-## Prerequisites
+Prerequisites
 
 Before running Terraform, ensure the following are available:
 
