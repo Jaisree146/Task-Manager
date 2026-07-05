@@ -1,0 +1,15 @@
+.terraform/
+terraform.tfvars
+*.auto.tfvars
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+lambda/lambda.zip
+node_modules/
+dist/
+build/
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
